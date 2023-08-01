@@ -43,11 +43,11 @@ async function rewriteVersion(
   newVersion: string,
   deps: string[]
 ) {
-  await Promise.all(
+  console.log("\n")
+
+  const rePkgs: PkgObject[] = await Promise.all(
     pkgs.map(async (pkg) => {
       let data = { ...pkg.data }
-
-      console.log("\n")
 
       if (data?.version) {
         const oldVersion = data.version
@@ -78,34 +78,39 @@ async function rewriteVersion(
           })
         })
       }
+      return { path: pkg.path, absolutePath: pkg.absolutePath, data }
+    })
+  )
 
-      console.log("\n")
+  console.log("\n")
 
-      const question: PromptObject = {
-        type: "select",
-        name: "override",
-        message: "Start overwriting?",
-        choices: [
-          { title: "Yes", value: true },
-          { title: "No", value: false },
-        ],
-        initial: 0,
-      }
-      const res = (await prompts(question)) as { override: boolean }
+  const question: PromptObject = {
+    type: "select",
+    name: "override",
+    message: "Start overwriting?",
+    choices: [
+      { title: "Yes", value: true },
+      { title: "No", value: false },
+    ],
+    initial: 0,
+  }
+  const res = (await prompts(question)) as { override: boolean }
 
-      if (res.override) {
+  if (res.override) {
+    await Promise.all(
+      rePkgs.map(async (pkg) => {
         await fs
-          .outputJson(pkg.path, data, { spaces: 2 })
+          .outputJson(pkg.path, pkg.data, { spaces: 2 })
           .then(() => {})
           .catch((err) => {
             console.error(err)
           })
-        console.log(pc.bold(pc.green("✔ Done")))
-      } else {
-        console.log(pc.bold(pc.red("Cancelled")))
-      }
-    })
-  )
+      })
+    )
+    console.log(pc.bold(pc.green("✔ Done")))
+  } else {
+    console.log(pc.bold(pc.red("Cancelled")))
+  }
 }
 
 async function main(inlineVersion: string, options: Options) {
