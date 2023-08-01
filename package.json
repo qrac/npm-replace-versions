@@ -38,7 +38,7 @@
     "url": "https://qranoko.jp"
   },
   "scripts": {
-    "build": "npm run clean && npm run build",
+    "build": "npm run clean && npm run build:src",
     "build:src": "esbuild ./src/index.ts --outfile=dist/index.js",
     "play": "node ./bin/cli.js",
     "play:ts": "tsx ./src/index.ts",
