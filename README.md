@@ -57,12 +57,12 @@ $ rev 0.1.1
 
 ## Options
 
-| option     | default           | detail                        |
-| ---------- | ----------------- | ----------------------------- |
-| `--root`   | `process.cwd()`   | Change where to start looking |
-| `--files`  | `**/package.json` | Glob target file              |
-| `--ignore` | `node_modules`    | Glob ignore file              |
-| `--deps`   | `undefined`       | Replace dependencies          |
+| option     | default           | detail                                                |
+| ---------- | ----------------- | ----------------------------------------------------- |
+| `--root`   | `process.cwd()`   | Change where to start looking                         |
+| `--files`  | `**/package.json` | Glob target file                                      |
+| `--ignore` | `node_modules`    | Glob ignore file                                      |
+| `--deps`   | `undefined`       | Replace dependencies (ex: `--deps packageA,packageB`) |
 
 ## License
 

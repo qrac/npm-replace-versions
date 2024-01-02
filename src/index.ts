@@ -27,8 +27,9 @@ function pkgVersion() {
 function splitUniqueStr(str: string): string[] {
   return str
     .trim()
-    .split(" ")
-    .filter((item: string) => item.trim() !== "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((item) => item !== "")
     .reduce((unique: string[], item: string) => {
       return unique.includes(item) ? unique : [...unique, item]
     }, [])
@@ -51,31 +52,25 @@ async function rewriteVersion(
 
       if (data?.version) {
         const oldVersion = data.version
-        const toMessage = ` ${oldVersion} -> ${newVersion}`
+        const toMessage = ` ${oldVersion} → ${newVersion}`
         data.version = newVersion
         console.log(pc.gray(pkg.absolutePath) + toMessage)
       }
       if (deps.length) {
-        deps.map((dep) => {
-          const dependencies = data?.dependencies as
-            | { [key: string]: string }
-            | undefined
-          const devDependencies = data?.devDependencies as
-            | { [key: string]: string }
-            | undefined
-          const peerDependencies = data?.peerDependencies as
-            | { [key: string]: string }
-            | undefined
-          const depArray = [dependencies, devDependencies, peerDependencies]
-
-          depArray.map((item) => {
-            if (item && Object.hasOwn(item, dep)) {
-              const oldVersion = item[dep].replace(/^\^/, "")
-              const toMessage = ` ${item}.${dep} ${oldVersion} -> ${newVersion}`
-              item[dep] = "^" + newVersion
-              console.log(pc.gray(pkg.absolutePath) + toMessage)
+        deps.forEach((dep) => {
+          ;["dependencies", "devDependencies", "peerDependencies"].forEach(
+            (depType) => {
+              const dependencies = data[depType] as
+                | { [key: string]: string }
+                | undefined
+              if (dependencies && Object.hasOwn(dependencies, dep)) {
+                const oldVersion = dependencies[dep].replace(/^\^/, "")
+                const toMessage = ` ${depType}.${dep} ${oldVersion} → ${newVersion}`
+                dependencies[dep] = "^" + newVersion
+                console.log(pc.gray(pkg.absolutePath) + toMessage)
+              }
             }
-          })
+          )
         })
       }
       return { path: pkg.path, absolutePath: pkg.absolutePath, data }
